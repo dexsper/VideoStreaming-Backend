@@ -22,9 +22,8 @@ export class CreateUserDto {
 
   @IsString()
   @MinLength(6)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message:
-      'password must contain uppercase, lowercase, number and special character',
+  @Matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).*$/, {
+    message: 'Contain at least one letter, number and special character',
   })
   @ApiProperty({ example: 'Ex@mple123!' })
   readonly password: string;
