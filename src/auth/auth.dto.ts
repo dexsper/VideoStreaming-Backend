@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { IsString, MinLength, MaxLength, Matches } from 'class-validator';
 import { Expose } from 'class-transformer';
+import { UserDto } from '../users/user.dto';
 
 export class AuthDto {
   @IsString()
@@ -18,7 +19,7 @@ export class AuthDto {
   readonly password: string;
 }
 
-export class AuthResponseDto {
+export class AuthResponseDto extends UserDto {
   @Expose()
   @ApiProperty({
     type: String,

@@ -23,7 +23,7 @@ export class AuthService {
       password: await hashPassword(createDto.password),
     });
 
-    return await this.getToken(newUser.id, newUser.email);
+    return await this.getToken(newUser.id, newUser.email, newUser.roles);
   }
 
   async signIn(authDto: AuthDto) {
@@ -42,14 +42,18 @@ export class AuthService {
       throw new BadRequestException('Incorrect login or password.');
     }
 
-    return await this.getToken(user.id, user.email);
+    return {
+      ...(await this.getToken(user.id, user.email, user.roles)),
+      ...user,
+    };
   }
 
-  async getToken(userId: number, email: string) {
+  async getToken(userId: number, email: string, roles) {
     return {
       accessToken: await this.jwtService.signAsync({
         sub: userId,
         email,
+        roles,
       }),
     };
   }

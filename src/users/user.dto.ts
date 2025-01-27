@@ -8,6 +8,7 @@ import {
   MaxLength,
   Matches,
 } from 'class-validator';
+import { UserRole } from './user.entity';
 
 export class CreateUserDto {
   @IsString()
@@ -37,4 +38,12 @@ export class UserDto {
   @Expose()
   @ApiProperty({ example: 'user@example.com' })
   email: string;
+
+  @Expose()
+  @ApiProperty({
+    enum: UserRole,
+    isArray: true,
+    example: Object.values(UserRole),
+  })
+  roles: UserRole[];
 }

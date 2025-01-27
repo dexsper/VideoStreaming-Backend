@@ -1,6 +1,4 @@
 import * as env from 'env-var';
-import { randomBytes } from 'crypto';
-
 import type { Config } from './interface';
 
 export default (): Config => {
@@ -19,8 +17,8 @@ export default (): Config => {
       database: env.get('DB_DATABASE').required().asString(),
     },
     nest: {
-      port: env.get('PORT').default(3000).asPortNumber(),
-      cors: env.get('CORS').default(0).asBool(),
+      port: env.get('PORT').default(3001).asPortNumber(),
+      cors: env.get('CORS').default(1).asBool(),
     },
     swagger: {
       enabled: env.get('SWAGGER_ENABLED').default(0).asBool(),
@@ -31,6 +29,13 @@ export default (): Config => {
     },
     auth: {
       jwtSecret: env.get('AUTH_JWT_SECRET').required().asString(),
+    },
+    storage: {
+      region: env.get('S3_REGION').required().asString(),
+      accessKeyId: env.get('S3_ACCESS_KEY').required().asString(),
+      secretAccessKey: env.get('S3_SECRET_KEY').required().asString(),
+      video_bucket: env.get('S3_VIDEO_BUCKET').required().asString(),
+      output_bucket: env.get('S3_OUTPUT_BUCKET').required().asString(),
     },
   };
 };

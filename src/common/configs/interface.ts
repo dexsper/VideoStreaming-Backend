@@ -4,6 +4,7 @@ export interface Config {
   nest: NestConfig;
   swagger: SwaggerConfig;
   auth: AuthConfig;
+  storage: S3Config;
 }
 
 export interface DatabaseConfig {
@@ -31,4 +32,12 @@ export interface SwaggerConfig {
 
 export interface AuthConfig {
   jwtSecret: string;
+}
+
+export interface S3Config {
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  video_bucket: string;
+  output_bucket: string;
 }

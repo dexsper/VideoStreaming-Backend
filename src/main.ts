@@ -59,7 +59,11 @@ async function bootstrap() {
   }
 
   if (nestConfig.cors) {
-    app.enableCors();
+    app.enableCors({
+      origin: '*',
+      methods: 'GET, PUT, POST, DELETE',
+      credentials: true,
+    });
   }
 
   await app.listen(nestConfig.port);
