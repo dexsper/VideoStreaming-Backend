@@ -2,7 +2,9 @@ import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 import { IsObject, IsString, MinLength } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
+
 import { Language } from '../common/localization';
+import { IPagination } from '../common/paginate';
 
 const getModelExamples = () => {
   return Object.keys(Language).reduce(
@@ -50,12 +52,20 @@ export class ModelDto extends ModelTranslationDto {
   image: string;
 }
 
-export class ModelsDto {
+export class ModelsDto implements IPagination<ModelDto> {
   @Expose()
   @Type(() => ModelDto)
   @ApiProperty({
     type: ModelDto,
     isArray: true,
   })
-  models: ModelDto[];
+  results: ModelDto[];
+
+  @Expose()
+  @ApiProperty()
+  page_total: number;
+
+  @Expose()
+  @ApiProperty()
+  total: number;
 }

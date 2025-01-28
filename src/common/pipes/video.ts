@@ -5,7 +5,7 @@ const MAX_GIGABYTES = 1;
 export const videoPipe = () => {
   return new ParseFilePipeBuilder()
     .addFileTypeValidator({
-      fileType: '.(mp4|mkv|avi|mov|flv|webm)',
+      fileType: 'mp4',
     })
     .addMaxSizeValidator({
       maxSize: MAX_GIGABYTES * 1024 * 1024 * 1024,

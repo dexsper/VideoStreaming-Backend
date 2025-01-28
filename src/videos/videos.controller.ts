@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  ParseIntPipe,
   Post,
   Query,
   SerializeOptions,
@@ -49,7 +50,10 @@ export class VideosController {
   @SerializeOptions({ type: VideosDto })
   @ApiOperation({ summary: 'Get all videos' })
   @ApiOkResponse({ type: VideosDto })
-  findAll(@Query('lang') lang: string, @Query('page') page: number) {
+  findAll(
+    @Query('lang') lang: string,
+    @Query('page', ParseIntPipe) page: number,
+  ) {
     return this.videosService.getAll(lang, page);
   }
 }

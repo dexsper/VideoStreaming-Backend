@@ -3,13 +3,19 @@ import {
   Controller,
   Get,
   HttpCode,
+  ParseIntPipe,
   Post,
   Query,
   SerializeOptions,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiConsumes, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiConsumes,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Roles } from '../rbac';
@@ -43,7 +49,17 @@ export class ModelsController {
   @SerializeOptions({ type: ModelsDto })
   @ApiOperation({ summary: 'Get all models' })
   @ApiOkResponse({ type: ModelsDto })
-  getModels(@Query('lang') lang: string) {
-    return this.modelsService.getAll(lang);
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'A search parameter. Optional',
+    required: false,
+  })
+  getModels(
+    @Query('lang') lang: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('search') search?: string,
+  ) {
+    return this.modelsService.getAll(lang, page, search);
   }
 }

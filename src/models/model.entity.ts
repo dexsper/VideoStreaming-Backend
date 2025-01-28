@@ -54,6 +54,8 @@ export class ModelTranslationEntity implements Translation<Model> {
   @Column()
   languageCode: string;
 
-  @ManyToOne(() => ModelEntity, (base) => base.translations)
+  @ManyToOne(() => ModelEntity, (base) => base.translations, {
+    onDelete: 'CASCADE',
+  })
   base: ModelEntity;
 }

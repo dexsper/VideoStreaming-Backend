@@ -2,9 +2,11 @@ import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 import { IsNumber, IsObject, IsString, MinLength } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
-import { Language } from '../common/localization';
 
+import { Language } from '../common/localization';
 import { IPagination } from '../common/paginate';
+
+import { ModelDto } from '../models/models.dto';
 
 const getVideoExamples = () => {
   return Object.keys(Language).reduce(
@@ -59,7 +61,15 @@ export class VideoDto extends VideoTranslationDto {
 
   @Expose()
   @ApiProperty()
-  playlist: number;
+  length: number;
+
+  @Expose()
+  @ApiProperty()
+  playlist: string;
+
+  @Expose()
+  @ApiProperty()
+  model: ModelDto;
 }
 
 export class VideosDto implements IPagination<VideoDto> {

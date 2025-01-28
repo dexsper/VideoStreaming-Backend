@@ -33,6 +33,9 @@ export class VideoEntity implements Translatable<Video> {
   id: number;
 
   @Column()
+  length: number;
+
+  @Column()
   playlist: string;
 
   @CreateDateColumn({ select: false })
@@ -62,6 +65,8 @@ export class VideoTranslationEntity implements Translation<Video> {
   @Column()
   languageCode: string;
 
-  @ManyToOne(() => VideoEntity, (base) => base.translations)
+  @ManyToOne(() => VideoEntity, (base) => base.translations, {
+    onDelete: 'CASCADE',
+  })
   base: VideoEntity;
 }

@@ -8,6 +8,7 @@ import { translate } from '../common/localization';
 import { Pagination } from '../common/paginate';
 
 import { ModelsService } from '../models/models.service';
+import { Model } from '../models/model.entity';
 
 import { CreateVideoDto } from './video.dto';
 import { Video, VideoEntity, VideoTranslationEntity } from './video.entity';
@@ -26,6 +27,15 @@ export class VideosService {
     this._bucketName = _configService.get('storage.video_bucket');
   }
 
+  getVideoLength(buffer) {
+    const header = Buffer.from('mvhd');
+    const start = buffer.indexOf(header) + 16;
+    const timeScale = buffer.readUInt32BE(start);
+    const duration = buffer.readUInt32BE(start + 4);
+
+    return Math.floor(duration / timeScale);
+  }
+
   async create(createDto: CreateVideoDto) {
     const model = await this._modelsService.findById(createDto.modelId);
 
@@ -39,8 +49,9 @@ export class VideosService {
 
     await this._videosRepository.manager.transaction(async (manager) => {
       const newVideo = manager.create(VideoEntity, {
-        playlist: remoteFilename,
+        playlist: remoteFilename.split('.')[0],
         model: model,
+        length: this.getVideoLength(createDto.file.buffer),
       });
 
       const savedVideo = await manager.save(newVideo);
@@ -59,16 +70,24 @@ export class VideosService {
     });
   }
 
-  async getAll(languageCode: string, page: number) {
+  async getAll(lang: string, page: number) {
     // noinspection TypeScriptValidateTypes
     const [results, total] = await this._videosRepository.findAndCount({
       relations: {
         translations: true,
+        model: {
+          translations: true,
+        },
       },
       relationLoadStrategy: 'join',
       where: {
         translations: {
-          languageCode: languageCode,
+          languageCode: lang,
+        },
+        model: {
+          translations: {
+            languageCode: lang,
+          },
         },
       },
       take: 12,
@@ -76,7 +95,7 @@ export class VideosService {
     });
 
     return new Pagination<Video>({
-      results: results.map((productEntity) => translate<Video>(productEntity)),
+      results: results.map((video) => translate<Video>(video)),
       total,
     });
   }

@@ -1,13 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 
 import { ObjectsService } from '@lab08/nestjs-s3';
 
 import { translate } from '../common/localization';
+import { Pagination } from '../common/paginate';
+
 import { Model, ModelEntity, ModelTranslationEntity } from './model.entity';
 import { CreateModelDto } from './models.dto';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ModelsService {
@@ -52,32 +54,54 @@ export class ModelsService {
     });
   }
 
-  async getAll(languageCode: string) {
-    // noinspection TypeScriptValidateTypes
-    return {
-      models: await this.modelsRepository
-        .find({
-          relations: {
-            translations: true,
-          },
-          relationLoadStrategy: 'join',
-          where: {
-            translations: {
-              languageCode: languageCode,
-            },
-          },
-        })
-        .then((result) =>
-          result.map((productEntity) => translate<Model>(productEntity)),
-        ),
-    };
+  async getAll(lang: string, page: number, search?: string) {
+    const queryBuilder = this.modelsRepository
+      .createQueryBuilder('model')
+      .leftJoinAndSelect('model.translations', 'translation')
+      .where('translation.languageCode = :lang', { lang });
+
+    if (search) {
+      queryBuilder.andWhere('translation.name ILIKE :searchText', {
+        searchText: `%${search}%`,
+      });
+    }
+
+    const [results, total] = await queryBuilder
+      .take(12)
+      .skip(12 * page)
+      .getManyAndCount();
+
+    return new Pagination<Model>({
+      results: results.map((modelEntity) => translate<Model>(modelEntity)),
+      total,
+    });
   }
 
-  async findById(id: number): Promise<ModelEntity> {
-    const model = await this.modelsRepository.findOneBy({ id });
+  async findById(id: number, lang: string): Promise<Model>;
+  async findById(id: number, lang?: undefined): Promise<ModelEntity>;
+  async findById(id: number, lang?: string): Promise<ModelEntity | Model> {
+    // noinspection TypeScriptValidateTypes
+    const model = await this.modelsRepository.findOne({
+      relations: {
+        translations: !!lang,
+      },
+      relationLoadStrategy: 'join',
+      where: {
+        id,
+        translations: {
+          languageCode: lang,
+        },
+      },
+    });
+
     if (!model) {
       throw new NotFoundException(`Model with ID ${id} not found`);
     }
+
+    if (lang) {
+      return translate<Model>(model);
+    }
+
     return model;
   }
 }
