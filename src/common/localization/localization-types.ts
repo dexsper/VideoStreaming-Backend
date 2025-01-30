@@ -1,7 +1,7 @@
 export enum Language {
   en = 'en',
   ru = 'ru',
-  uk = 'uk',
+  ua = 'ua',
   ku = 'ku',
 }
 
