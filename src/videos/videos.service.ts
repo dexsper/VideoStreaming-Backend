@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ObjectsService } from '@lab08/nestjs-s3';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +8,6 @@ import { translate } from '../common/localization';
 import { Pagination } from '../common/paginate';
 
 import { ModelsService } from '../models/models.service';
-import { Model } from '../models/model.entity';
 
 import { CreateVideoDto } from './video.dto';
 import { Video, VideoEntity, VideoTranslationEntity } from './video.entity';
@@ -49,7 +48,7 @@ export class VideosService {
 
     await this._videosRepository.manager.transaction(async (manager) => {
       const newVideo = manager.create(VideoEntity, {
-        playlist: remoteFilename.split('.')[0],
+        playlist_file: remoteFilename.split('.')[0],
         model: model,
         length: this.getVideoLength(createDto.file.buffer),
       });
@@ -98,5 +97,35 @@ export class VideosService {
       results: results.map((video) => translate<Video>(video)),
       total,
     });
+  }
+
+  async getById(lang: string, id: number) {
+    // noinspection TypeScriptValidateTypes
+    const video = await this._videosRepository.findOne({
+      relations: {
+        translations: true,
+        model: {
+          translations: true,
+        },
+      },
+      relationLoadStrategy: 'join',
+      where: {
+        id,
+        translations: {
+          languageCode: lang,
+        },
+        model: {
+          translations: {
+            languageCode: lang,
+          },
+        },
+      },
+    });
+
+    if (!video) {
+      throw new NotFoundException(`Video with ID ${id} not found`);
+    }
+
+    return translate<Video>(video);
   }
 }

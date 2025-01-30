@@ -65,7 +65,7 @@ export class VideoDto extends VideoTranslationDto {
 
   @Expose()
   @ApiProperty()
-  playlist: string;
+  playlist_file: string;
 
   @Expose()
   @ApiProperty()

@@ -21,6 +21,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles } from '../rbac';
 import { ApiJwtAuth, Public } from '../auth/decorators';
 import { imagePipe } from '../common/pipes';
+import { Language } from '../common/localization';
 
 import { ModelsService } from './models.service';
 import { CreateModelDto, ModelsDto } from './models.dto';
@@ -54,6 +55,10 @@ export class ModelsController {
     type: String,
     description: 'A search parameter. Optional',
     required: false,
+  })
+  @ApiQuery({
+    name: 'lang',
+    enum: Language,
   })
   getModels(
     @Query('lang') lang: string,

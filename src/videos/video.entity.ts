@@ -19,7 +19,7 @@ export interface Video {
   id: number;
   name: LocaleString;
   description: LocaleString;
-  playlist: string;
+  playlist_file: string;
 
   model: Translatable<Model>;
 
@@ -36,7 +36,7 @@ export class VideoEntity implements Translatable<Video> {
   length: number;
 
   @Column()
-  playlist: string;
+  playlist_file: string;
 
   @CreateDateColumn({ select: false })
   createdDate: Date;
