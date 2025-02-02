@@ -29,6 +29,7 @@ import { TagsModule } from './tags/tags.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         ...configService.get('database'),
+        cache: true,
         autoLoadEntities: true,
         synchronize: configService.get<string>('env') === 'development',
       }),

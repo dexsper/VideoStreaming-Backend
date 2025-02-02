@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ObjectsService } from '@lab08/nestjs-s3';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { translate } from '../common/localization';
 import { Pagination } from '../common/paginate';
@@ -121,6 +121,7 @@ export class VideosService {
     const [results, total] = await queryBuilder
       .take(12)
       .skip(12 * page)
+      .cache('videos', 30 * 1000)
       .getManyAndCount();
 
     return new Pagination<Video>({
