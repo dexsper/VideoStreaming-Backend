@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseArrayPipe,
   ParseIntPipe,
   Post,
   Query,
@@ -57,11 +58,30 @@ export class VideosController {
     name: 'lang',
     enum: Language,
   })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'A search parameter. Optional',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'tags',
+    type: Number,
+    isArray: true,
+    description: 'A tags parameter. Optional',
+    required: false,
+  })
   findAll(
     @Query('lang') lang: string,
     @Query('page', ParseIntPipe) page: number,
+    @Query('search') search?: string,
+    @Query(
+      'tags',
+      new ParseArrayPipe({ items: Number, separator: ',', optional: true }),
+    )
+    tags?: number[],
   ) {
-    return this.videosService.getAll(lang, page);
+    return this.videosService.getAll(lang, page, search, tags);
   }
 
   @Get(':id')
@@ -73,7 +93,7 @@ export class VideosController {
     name: 'lang',
     enum: Language,
   })
-  getVideo(@Query('lang') lang: string, @Param('id', ParseIntPipe) id: number) {
-    return this.videosService.getById(lang, id);
+  getVideo(@Param('id', ParseIntPipe) id: number, @Query('lang') lang: string) {
+    return this.videosService.getById(id, lang);
   }
 }

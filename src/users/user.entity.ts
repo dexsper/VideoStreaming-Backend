@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { CommentEntity } from '../comments/comment.entity';
 
 export enum UserRole {
   User = 'user',
@@ -32,6 +35,9 @@ export class UserEntity {
     default: [UserRole.User],
   })
   roles: UserRole[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments: CommentEntity[];
 
   @CreateDateColumn({ select: false })
   createdDate: Date;

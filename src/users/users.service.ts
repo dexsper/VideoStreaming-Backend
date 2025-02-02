@@ -34,7 +34,7 @@ export class UsersService {
     return await this.usersRepository.save(newUser);
   }
 
-  async findById(id: number): Promise<UserEntity> {
+  async getById(id: number): Promise<UserEntity> {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);

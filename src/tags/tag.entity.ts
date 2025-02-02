@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity, Index,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -13,50 +14,46 @@ import {
   Translatable,
   Translation,
 } from '../common/localization';
+
 import { VideoEntity } from '../videos/video.entity';
 
-export interface Model {
+export interface Tag {
   id: number;
-  name: LocaleString;
-  image: string;
+  text: LocaleString;
 
   createdDate: Date;
   updatedDate: Date;
 }
 
-@Entity('models')
-export class ModelEntity implements Translatable<Model> {
+@Entity('video_tags')
+export class TagEntity implements Translatable<Tag> {
   @PrimaryGeneratedColumn() id: number;
 
-  @Column() image: string;
+  @OneToMany(() => TagTranslationEntity, (translation) => translation.base)
+  translations: TagTranslationEntity[];
+
+  @ManyToMany(() => VideoEntity, (video) => video.tags)
+  videos: VideoEntity[];
 
   @CreateDateColumn({ select: false })
   createdDate: Date;
 
   @UpdateDateColumn({ select: false })
   updatedDate: Date;
-
-  @OneToMany(() => ModelTranslationEntity, (translation) => translation.base)
-  translations: ModelTranslationEntity[];
-
-  @OneToMany(() => VideoEntity, (video) => video.model)
-  videos: VideoEntity[];
 }
 
-@Entity('model_translations')
-export class ModelTranslationEntity implements Translation<Model> {
+@Entity('video_tag_translations')
+export class TagTranslationEntity implements Translation<Tag> {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  name: string;
+  text: string;
 
   @Column()
   @Index()
   languageCode: string;
 
-  @ManyToOne(() => ModelEntity, (base) => base.translations, {
-    onDelete: 'CASCADE',
-  })
-  base: ModelEntity;
+  @ManyToOne(() => TagEntity, (base) => base.translations)
+  base: TagEntity;
 }

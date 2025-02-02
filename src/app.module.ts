@@ -14,6 +14,8 @@ import { RbacModule } from './rbac/rbac.module';
 import { routes } from './route';
 import { ModelsModule } from './models/models.module';
 import { VideosModule } from './videos/videos.module';
+import { CommentsModule } from './comments/comments.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -38,12 +40,14 @@ import { VideosModule } from './videos/videos.module';
         return configService.get('storage') as S3Config;
       },
     }),
+    TagsModule,
+    CommentsModule,
+    VideosModule,
+    ModelsModule,
     UsersModule,
     AuthModule,
     RbacModule,
     RouterModule.register(routes),
-    ModelsModule,
-    VideosModule,
   ],
   controllers: [],
   providers: [],

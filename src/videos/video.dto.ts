@@ -1,11 +1,18 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
-import { IsNumber, IsObject, IsString, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsObject,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 
-import { Language } from '../common/localization';
 import { IPagination } from '../common/paginate';
+import { Language } from '../common/localization';
 
+import { TagDto } from '../tags/tag.dto';
 import { ModelDto } from '../models/models.dto';
 
 const getVideoExamples = () => {
@@ -50,6 +57,10 @@ export class CreateVideoDto {
   @Transform(({ value }) => JSON.parse(value))
   readonly translations: Record<Language, VideoTranslationDto>;
 
+  @IsArray()
+  @ApiProperty()
+  readonly tags: number[];
+
   @ApiProperty({ type: 'string', format: 'binary', required: true })
   file: Express.Multer.File;
 }
@@ -70,6 +81,14 @@ export class VideoDto extends VideoTranslationDto {
   @Expose()
   @ApiProperty()
   model: ModelDto;
+
+  @Expose()
+  @Type(() => TagDto)
+  @ApiProperty({
+    type: TagDto,
+    isArray: true,
+  })
+  tags: TagDto[];
 }
 
 export class VideosDto implements IPagination<VideoDto> {

@@ -21,7 +21,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get the current authorized user.' })
   @ApiOkResponse({ type: UserDto })
   getMe(@CurrentUser('id') userId: number) {
-    return this.usersService.findById(userId);
+    return this.usersService.getById(userId);
   }
 
   @Get(':userId')
@@ -31,6 +31,6 @@ export class UsersController {
   @ApiOkResponse({ type: UserDto })
   @ApiNotFoundResponse({ description: 'The specified user was not found' })
   getUser(@Param('userId') userId: number) {
-    return this.usersService.findById(userId);
+    return this.usersService.getById(userId);
   }
 }

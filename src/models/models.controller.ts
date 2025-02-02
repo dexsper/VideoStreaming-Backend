@@ -51,14 +51,14 @@ export class ModelsController {
   @ApiOperation({ summary: 'Get all models' })
   @ApiOkResponse({ type: ModelsDto })
   @ApiQuery({
+    name: 'lang',
+    enum: Language,
+  })
+  @ApiQuery({
     name: 'search',
     type: String,
     description: 'A search parameter. Optional',
     required: false,
-  })
-  @ApiQuery({
-    name: 'lang',
-    enum: Language,
   })
   getModels(
     @Query('lang') lang: string,

@@ -2,11 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ObjectsService } from '@lab08/nestjs-s3';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { translate } from '../common/localization';
 import { Pagination } from '../common/paginate';
 
+import { TagEntity } from '../tags/tag.entity';
 import { ModelsService } from '../models/models.service';
 
 import { CreateVideoDto } from './video.dto';
@@ -36,7 +37,7 @@ export class VideosService {
   }
 
   async create(createDto: CreateVideoDto) {
-    const model = await this._modelsService.findById(createDto.modelId);
+    const model = await this._modelsService.getById(createDto.modelId);
 
     const remoteFilename = `${Date.now().toString()}_${createDto.file.originalname}`;
     await this._objectsService.putObject(
@@ -50,6 +51,7 @@ export class VideosService {
       const newVideo = manager.create(VideoEntity, {
         playlist_file: remoteFilename.split('.')[0],
         model: model,
+        tags: createDto.tags.map((tagId) => ({ id: tagId }) as TagEntity),
         length: this.getVideoLength(createDto.file.buffer),
       });
 
@@ -69,29 +71,57 @@ export class VideosService {
     });
   }
 
-  async getAll(lang: string, page: number) {
-    // noinspection TypeScriptValidateTypes
-    const [results, total] = await this._videosRepository.findAndCount({
-      relations: {
-        translations: true,
-        model: {
-          translations: true,
+  async getAll(lang: string, page: number, search?: string, tags?: number[]) {
+    const queryBuilder = this._videosRepository
+      .createQueryBuilder('video')
+      .innerJoinAndSelect(
+        'video.translations',
+        'videoTranslation',
+        'videoTranslation.languageCode = :lang',
+        { lang },
+      )
+      .innerJoinAndSelect('video.model', 'model')
+      .innerJoinAndSelect(
+        'model.translations',
+        'modelTranslation',
+        'modelTranslation.languageCode = :lang',
+        { lang },
+      )
+      .innerJoinAndSelect('video.tags', 'tag')
+      .innerJoinAndSelect(
+        'tag.translations',
+        'tagTranslation',
+        'tagTranslation.languageCode = :lang',
+        { lang },
+      );
+
+    if (search) {
+      queryBuilder.andWhere('videoTranslation.name ILIKE :searchText', {
+        searchText: `%${search}%`,
+      });
+    }
+
+    if (tags?.length) {
+      queryBuilder.andWhere(
+        (qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select('1')
+            .from('videos_to_tags', 'vt')
+            .where('vt.videosId = video.id')
+            .andWhere('vt.videoTagsId IN (:...tags)')
+            .getQuery();
+
+          return `EXISTS (${subQuery})`;
         },
-      },
-      relationLoadStrategy: 'join',
-      where: {
-        translations: {
-          languageCode: lang,
-        },
-        model: {
-          translations: {
-            languageCode: lang,
-          },
-        },
-      },
-      take: 12,
-      skip: 12 * page,
-    });
+        { tags },
+      );
+    }
+
+    const [results, total] = await queryBuilder
+      .take(12)
+      .skip(12 * page)
+      .getManyAndCount();
 
     return new Pagination<Video>({
       results: results.map((video) => translate<Video>(video)),
@@ -99,26 +129,28 @@ export class VideosService {
     });
   }
 
-  async getById(lang: string, id: number) {
+  async getById(id: number, lang: string): Promise<Video>;
+  async getById(id: number, lang?: undefined): Promise<VideoEntity>;
+  async getById(id: number, lang?: string): Promise<VideoEntity | Video> {
     // noinspection TypeScriptValidateTypes
     const video = await this._videosRepository.findOne({
       relations: {
-        translations: true,
+        translations: !!lang,
         model: {
-          translations: true,
+          translations: !!lang,
+        },
+        tags: {
+          translations: !!lang,
         },
       },
       relationLoadStrategy: 'join',
       where: {
         id,
-        translations: {
-          languageCode: lang,
-        },
-        model: {
-          translations: {
-            languageCode: lang,
-          },
-        },
+        ...(lang && {
+          translations: { languageCode: lang },
+          model: { translations: { languageCode: lang } },
+          tags: { translations: { languageCode: lang } },
+        }),
       },
     });
 
@@ -126,6 +158,10 @@ export class VideosService {
       throw new NotFoundException(`Video with ID ${id} not found`);
     }
 
-    return translate<Video>(video);
+    if (lang) {
+      return translate<Video>(video);
+    }
+
+    return video;
   }
 }

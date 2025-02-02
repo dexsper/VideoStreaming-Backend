@@ -8,6 +8,7 @@ import {
   MaxLength,
   Matches,
 } from 'class-validator';
+
 import { UserRole } from './user.entity';
 
 export class CreateUserDto {

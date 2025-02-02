@@ -17,7 +17,7 @@ export class ModelsService {
 
   constructor(
     @InjectRepository(ModelEntity)
-    private readonly modelsRepository: Repository<ModelEntity>,
+    private readonly _modelsRepository: Repository<ModelEntity>,
     private readonly _objectsService: ObjectsService,
     private readonly _configService: ConfigService,
   ) {
@@ -25,7 +25,7 @@ export class ModelsService {
   }
 
   async create(createDto: CreateModelDto) {
-    await this.modelsRepository.manager.transaction(async (manager) => {
+    await this._modelsRepository.manager.transaction(async (manager) => {
       const remoteFilename = `models/${Date.now().toString()}_${createDto.image.originalname}`;
 
       await this._objectsService.putObject(
@@ -55,7 +55,7 @@ export class ModelsService {
   }
 
   async getAll(lang: string, page: number, search?: string) {
-    const queryBuilder = this.modelsRepository
+    const queryBuilder = this._modelsRepository
       .createQueryBuilder('model')
       .leftJoinAndSelect('model.translations', 'translation')
       .where('translation.languageCode = :lang', { lang });
@@ -77,20 +77,18 @@ export class ModelsService {
     });
   }
 
-  async findById(id: number, lang: string): Promise<Model>;
-  async findById(id: number, lang?: undefined): Promise<ModelEntity>;
-  async findById(id: number, lang?: string): Promise<ModelEntity | Model> {
+  async getById(id: number, lang: string): Promise<Model>;
+  async getById(id: number, lang?: undefined): Promise<ModelEntity>;
+  async getById(id: number, lang?: string): Promise<ModelEntity | Model> {
     // noinspection TypeScriptValidateTypes
-    const model = await this.modelsRepository.findOne({
+    const model = await this._modelsRepository.findOne({
       relations: {
         translations: !!lang,
       },
       relationLoadStrategy: 'join',
       where: {
         id,
-        translations: {
-          languageCode: lang,
-        },
+        ...(lang ? { translations: { languageCode: lang } } : {}),
       },
     });
 

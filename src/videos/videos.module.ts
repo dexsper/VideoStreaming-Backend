@@ -14,5 +14,6 @@ import { VideoEntity, VideoTranslationEntity } from './video.entity';
   ],
   providers: [VideosService],
   controllers: [VideosController],
+  exports: [VideosService],
 })
 export class VideosModule {}
