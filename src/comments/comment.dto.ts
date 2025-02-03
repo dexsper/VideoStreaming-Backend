@@ -24,6 +24,10 @@ export class CommentDto extends CreateCommentDto {
 
   @Expose()
   @ApiProperty()
+  isApproved: boolean;
+
+  @Expose()
+  @ApiProperty()
   @Transform(({ obj }) => obj.user.login)
   author: string;
 }

@@ -47,9 +47,12 @@ export class CommentsController {
   @SerializeOptions({ type: CommentsDto })
   @ApiOperation({ summary: 'Get all video comments' })
   @ApiOkResponse({ type: CommentsDto })
-  getComments(@Query('videoId') videoId: number, @Query('page') page: number) {
-    console.log(`${videoId} ${page}`);
-    return this.commentsService.getVideoComments(videoId, page);
+  getComments(
+    @Query('videoId') videoId: number,
+    @Query('page') page: number,
+    @CurrentUser('id') userId: number,
+  ) {
+    return this.commentsService.getVideoComments(videoId, page, userId);
   }
 
   @Get('unproven')

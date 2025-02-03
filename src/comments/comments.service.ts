@@ -32,6 +32,7 @@ export class CommentsService {
   async getVideoComments(
     videoId: number,
     page: number,
+    userId: number,
   ): Promise<IPagination<CommentEntity>> {
     const limit = 10;
     const offset = 10 * page;
@@ -39,10 +40,17 @@ export class CommentsService {
     const results = await this._commentsRepository.find({
       relations: ['user'],
       relationLoadStrategy: 'join',
-      where: {
-        videoId,
-        isApproved: true,
-      },
+      where: [
+        {
+          videoId,
+          isApproved: true,
+        },
+        {
+          videoId,
+          userId,
+          isApproved: false,
+        },
+      ],
       take: limit + 1,
       skip: offset,
     });
