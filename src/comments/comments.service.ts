@@ -32,7 +32,7 @@ export class CommentsService {
   async getVideoComments(
     videoId: number,
     page: number,
-    userId: number,
+    userId?: number,
   ): Promise<IPagination<CommentEntity>> {
     const limit = 10;
     const offset = 10 * page;
@@ -45,11 +45,13 @@ export class CommentsService {
           videoId,
           isApproved: true,
         },
-        {
-          videoId,
-          userId,
-          isApproved: false,
-        },
+        userId
+          ? {
+              videoId,
+              userId,
+              isApproved: false,
+            }
+          : {},
       ],
       take: limit + 1,
       skip: offset,

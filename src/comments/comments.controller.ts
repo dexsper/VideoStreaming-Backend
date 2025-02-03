@@ -24,7 +24,7 @@ import { CommentDto, CommentsDto, CreateCommentDto } from './comment.dto';
 import { CommentsService } from './comments.service';
 
 @ApiJwtAuth()
-@Controller()
+@Controller('videos/comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
@@ -50,7 +50,7 @@ export class CommentsController {
   getComments(
     @Query('videoId') videoId: number,
     @Query('page') page: number,
-    @CurrentUser('id') userId: number,
+    @CurrentUser('id', { optional: true }) userId?: number,
   ) {
     return this.commentsService.getVideoComments(videoId, page, userId);
   }
