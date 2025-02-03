@@ -16,6 +16,7 @@ import { ModelsModule } from './models/models.module';
 import { VideosModule } from './videos/videos.module';
 import { CommentsModule } from './comments/comments.module';
 import { TagsModule } from './tags/tags.module';
+import { LikesModule } from './likes/likes.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { TagsModule } from './tags/tags.module';
       },
     }),
     TagsModule,
+    LikesModule,
     CommentsModule,
     VideosModule,
     ModelsModule,

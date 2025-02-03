@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 
-import { IPagination } from '../common/paginate';
+import { IPagination } from '../common/pagination';
 
 export class CreateCommentDto {
   @Expose()
@@ -39,9 +39,5 @@ export class CommentsDto implements IPagination<CommentDto> {
 
   @Expose()
   @ApiProperty()
-  page_total: number;
-
-  @Expose()
-  @ApiProperty()
-  total: number;
+  hasNextPage: boolean;
 }

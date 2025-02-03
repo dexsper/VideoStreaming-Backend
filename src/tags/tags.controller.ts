@@ -45,11 +45,20 @@ export class TagsController {
     name: 'lang',
     enum: Language,
   })
-  getTags(
-    @Query('lang') lang: string,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('search') search?: string,
-  ) {
-    return this.tagsService.getAll(lang, page, search);
+  getTags(@Query('lang') lang: string, @Query('search') search?: string) {
+    return this.tagsService.getAll(lang, search);
+  }
+
+  @Get('popular')
+  @Public()
+  @SerializeOptions({ type: TagsDto })
+  @ApiOperation({ summary: 'Get popular tags' })
+  @ApiOkResponse({ type: TagsDto })
+  @ApiQuery({
+    name: 'lang',
+    enum: Language,
+  })
+  getPopularTags(@Query('lang') lang: string) {
+    return this.tagsService.getPopular(lang);
   }
 }

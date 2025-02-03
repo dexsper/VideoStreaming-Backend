@@ -1,8 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Pagination } from '../common/paginate';
 import { translate } from '../common/localization';
 
 import { Tag, TagEntity, TagTranslationEntity } from './tag.entity';
@@ -34,7 +33,7 @@ export class TagsService {
     });
   }
 
-  async getAll(lang: string, page: number, search?: string) {
+  async getAll(lang: string, search?: string) {
     const queryBuilder = this._tagsRepository
       .createQueryBuilder('tag')
       .leftJoinAndSelect('tag.translations', 'translation')
@@ -46,40 +45,28 @@ export class TagsService {
       });
     }
 
-    const [results, total] = await queryBuilder
-      .take(100)
-      .skip(100 * page)
-      .getManyAndCount();
+    const results = await queryBuilder.getMany();
 
-    return new Pagination<Tag>({
+    return {
       results: results.map((modelEntity) => translate<Tag>(modelEntity)),
-      total,
-    });
+    };
   }
 
-  async getById(id: number, lang: string): Promise<Tag>;
-  async getById(id: number, lang?: undefined): Promise<TagEntity>;
-  async getById(id: number, lang?: string): Promise<TagEntity | Tag> {
-    // noinspection TypeScriptValidateTypes
-    const model = await this._tagsRepository.findOne({
-      relations: {
-        translations: !!lang,
-      },
-      relationLoadStrategy: 'join',
-      where: {
-        id,
-        ...(lang ? { translations: { languageCode: lang } } : {}),
-      },
-    });
+  async getPopular(lang: string) {
+    const results = await this._tagsRepository
+      .createQueryBuilder('tag')
+      .leftJoinAndSelect('tag.translations', 'translation')
+      .where('translation.languageCode = :lang', { lang })
+      .addSelect('COUNT(videos.id) as videosCount')
+      .leftJoin('tag.videos', 'videos')
+      .groupBy('tag.id, translation.id')
+      .orderBy('videosCount', 'DESC')
+      .limit(10)
+      .cache(`popular-tags-${lang}`, 60 * 1000)
+      .getMany();
 
-    if (!model) {
-      throw new NotFoundException(`Tag with ID ${id} not found`);
-    }
-
-    if (lang) {
-      return translate<Tag>(model);
-    }
-
-    return model;
+    return {
+      results: results.map((modelEntity) => translate<Tag>(modelEntity)),
+    };
   }
 }

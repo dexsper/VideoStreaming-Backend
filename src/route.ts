@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { ModelsModule } from './models/models.module';
 import { CommentsModule } from './comments/comments.module';
 import { TagsModule } from './tags/tags.module';
+import { LikesModule } from './likes/likes.module';
 
 export const routes: Routes = [
   {
@@ -27,6 +28,10 @@ export const routes: Routes = [
       {
         path: 'tags',
         module: TagsModule,
+      },
+      {
+        path: 'likes',
+        module: LikesModule,
       },
       {
         path: 'comments',

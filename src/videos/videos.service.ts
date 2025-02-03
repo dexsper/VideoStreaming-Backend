@@ -4,8 +4,8 @@ import { ObjectsService } from '@lab08/nestjs-s3';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { IPagination } from '../common/pagination';
 import { translate } from '../common/localization';
-import { Pagination } from '../common/paginate';
 
 import { TagEntity } from '../tags/tag.entity';
 import { ModelsService } from '../models/models.service';
@@ -71,7 +71,15 @@ export class VideosService {
     });
   }
 
-  async getAll(lang: string, page: number, search?: string, tags?: number[]) {
+  async getAll(
+    lang: string,
+    page: number,
+    search?: string,
+    tags?: number[],
+  ): Promise<IPagination<Video>> {
+    const limit = 12;
+    const offset = 12 * page;
+
     const queryBuilder = this._videosRepository
       .createQueryBuilder('video')
       .innerJoinAndSelect(
@@ -102,32 +110,30 @@ export class VideosService {
     }
 
     if (tags?.length) {
-      queryBuilder.andWhere(
-        (qb) => {
-          const subQuery = qb
-            .subQuery()
-            .select('1')
-            .from('videos_to_tags', 'vt')
-            .where('vt.videosId = video.id')
-            .andWhere('vt.videoTagsId IN (:...tags)')
-            .getQuery();
-
-          return `EXISTS (${subQuery})`;
-        },
-        { tags },
-      );
+      queryBuilder.andWhere('tag.id IN (:...tags)', { tags });
     }
 
-    const [results, total] = await queryBuilder
-      .take(12)
-      .skip(12 * page)
-      .cache('videos', 30 * 1000)
-      .getManyAndCount();
+    const results = await queryBuilder
+      .leftJoin('video.likes', 'likes')
+      .addSelect('COUNT(likes.id) as likesCount')
+      .groupBy('video.id, videoTranslation.id')
+      .addGroupBy('model.id, modelTranslation.id')
+      .addGroupBy('tag.id, tagTranslation.id')
+      .orderBy('likesCount', 'DESC')
+      .limit(limit + 1)
+      .offset(offset)
+      .cache(30 * 1000)
+      .getMany();
 
-    return new Pagination<Video>({
+    const hasNextPage = results.length > limit;
+    if (hasNextPage) {
+      results.pop();
+    }
+
+    return {
       results: results.map((video) => translate<Video>(video)),
-      total,
-    });
+      hasNextPage,
+    };
   }
 
   async getById(id: number, lang: string): Promise<Video>;

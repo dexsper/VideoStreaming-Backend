@@ -20,6 +20,7 @@ import {
 
 import { CommentEntity } from '../comments/comment.entity';
 import { TagEntity } from '../tags/tag.entity';
+import { LikeEntity } from '../likes/like.entity';
 
 export interface Video {
   id: number;
@@ -51,7 +52,10 @@ export class VideoEntity implements Translatable<Video> {
   @OneToMany(() => CommentEntity, (comment) => comment.video)
   comments: CommentEntity[];
 
-  @ManyToMany(() => TagEntity)
+  @OneToMany(() => LikeEntity, (like) => like.video)
+  likes: LikeEntity[];
+
+  @ManyToMany(() => TagEntity, (tag) => tag.videos)
   @JoinTable({
     name: 'videos_to_tags',
   })

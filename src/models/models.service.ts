@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 
 import { ObjectsService } from '@lab08/nestjs-s3';
 
+import { IPagination } from '../common/pagination';
 import { translate } from '../common/localization';
-import { Pagination } from '../common/paginate';
 
 import { Model, ModelEntity, ModelTranslationEntity } from './model.entity';
 import { CreateModelDto } from './models.dto';
@@ -54,7 +54,14 @@ export class ModelsService {
     });
   }
 
-  async getAll(lang: string, page: number, search?: string) {
+  async getAll(
+    lang: string,
+    page: number,
+    search?: string,
+  ): Promise<IPagination<Model>> {
+    const limit = 12;
+    const offset = 12 * page;
+
     const queryBuilder = this._modelsRepository
       .createQueryBuilder('model')
       .leftJoinAndSelect('model.translations', 'translation')
@@ -66,15 +73,20 @@ export class ModelsService {
       });
     }
 
-    const [results, total] = await queryBuilder
-      .take(12)
-      .skip(12 * page)
-      .getManyAndCount();
+    const results = await queryBuilder
+      .take(limit + 1)
+      .skip(offset)
+      .getMany();
 
-    return new Pagination<Model>({
+    const hasNextPage = results.length > limit;
+    if (hasNextPage) {
+      results.pop();
+    }
+
+    return {
       results: results.map((modelEntity) => translate<Model>(modelEntity)),
-      total,
-    });
+      hasNextPage,
+    };
   }
 
   async getById(id: number, lang: string): Promise<Model>;

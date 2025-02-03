@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { LikeEntity } from '../likes/like.entity';
 import { CommentEntity } from '../comments/comment.entity';
 
 export enum UserRole {
@@ -38,6 +39,9 @@ export class UserEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.user)
   comments: CommentEntity[];
+
+  @OneToMany(() => LikeEntity, (like) => like.user)
+  likes: LikeEntity[];
 
   @CreateDateColumn({ select: false })
   createdDate: Date;

@@ -2,9 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { IPagination } from '../common/pagination';
+
 import { CreateCommentDto } from './comment.dto';
 import { CommentEntity } from './comment.entity';
-import { Pagination } from '../common/paginate';
 import { VideosService } from '../videos/videos.service';
 
 @Injectable()
@@ -28,39 +29,58 @@ export class CommentsService {
     return await this._commentsRepository.save(newComment);
   }
 
-  async getVideoComments(videoId: number, page: number) {
-    const [results, total] = await this._commentsRepository.findAndCount({
+  async getVideoComments(
+    videoId: number,
+    page: number,
+  ): Promise<IPagination<CommentEntity>> {
+    const limit = 10;
+    const offset = 10 * page;
+
+    const results = await this._commentsRepository.find({
       relations: ['user'],
       relationLoadStrategy: 'join',
       where: {
         videoId,
         isApproved: true,
       },
-      take: 10,
-      skip: 10 * page,
+      take: limit + 1,
+      skip: offset,
     });
 
-    return new Pagination<CommentEntity>({
+    const hasNextPage = results.length > limit;
+    if (hasNextPage) {
+      results.pop();
+    }
+
+    return {
       results,
-      total,
-    });
+      hasNextPage,
+    };
   }
 
-  async getUnproven(page: number) {
-    const [results, total] = await this._commentsRepository.findAndCount({
+  async getUnproven(page: number): Promise<IPagination<CommentEntity>> {
+    const limit = 10;
+    const offset = 10 * page;
+
+    const results = await this._commentsRepository.find({
       relations: ['user'],
       relationLoadStrategy: 'join',
       where: {
         isApproved: false,
       },
-      take: 10,
-      skip: 10 * page,
+      take: limit + 1,
+      skip: offset,
     });
 
-    return new Pagination<CommentEntity>({
+    const hasNextPage = results.length > limit;
+    if (hasNextPage) {
+      results.pop();
+    }
+
+    return {
       results,
-      total,
-    });
+      hasNextPage,
+    };
   }
 
   async getById(id: number) {

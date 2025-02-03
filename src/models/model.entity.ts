@@ -1,7 +1,8 @@
 import {
   Column,
   CreateDateColumn,
-  Entity, Index,
+  Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -30,17 +31,17 @@ export class ModelEntity implements Translatable<Model> {
 
   @Column() image: string;
 
-  @CreateDateColumn({ select: false })
-  createdDate: Date;
-
-  @UpdateDateColumn({ select: false })
-  updatedDate: Date;
-
   @OneToMany(() => ModelTranslationEntity, (translation) => translation.base)
   translations: ModelTranslationEntity[];
 
   @OneToMany(() => VideoEntity, (video) => video.model)
   videos: VideoEntity[];
+
+  @CreateDateColumn({ select: false })
+  createdDate: Date;
+
+  @UpdateDateColumn({ select: false })
+  updatedDate: Date;
 }
 
 @Entity('model_translations')

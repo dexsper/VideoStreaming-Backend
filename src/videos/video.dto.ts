@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 
-import { IPagination } from '../common/paginate';
+import { IPagination } from '../common/pagination';
 import { Language } from '../common/localization';
 
 import { TagDto } from '../tags/tag.dto';
@@ -102,9 +102,5 @@ export class VideosDto implements IPagination<VideoDto> {
 
   @Expose()
   @ApiProperty()
-  page_total: number;
-
-  @Expose()
-  @ApiProperty()
-  total: number;
+  hasNextPage: boolean;
 }

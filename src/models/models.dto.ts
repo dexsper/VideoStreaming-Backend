@@ -4,7 +4,7 @@ import { IsObject, IsString, MinLength } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 
 import { Language } from '../common/localization';
-import { IPagination } from '../common/paginate';
+import { IPagination } from '../common/pagination';
 
 const getModelExamples = () => {
   return Object.keys(Language).reduce(
@@ -63,9 +63,5 @@ export class ModelsDto implements IPagination<ModelDto> {
 
   @Expose()
   @ApiProperty()
-  page_total: number;
-
-  @Expose()
-  @ApiProperty()
-  total: number;
+  hasNextPage: boolean;
 }

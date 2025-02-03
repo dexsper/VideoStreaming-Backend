@@ -4,7 +4,6 @@ import { Expose, Type } from 'class-transformer';
 import { IsObject, IsString, MinLength } from 'class-validator';
 
 import { Language } from '../common/localization';
-import { IPagination } from '../common/paginate';
 
 const getTagExamples = () => {
   return Object.keys(Language).reduce(
@@ -44,7 +43,7 @@ export class TagDto extends TagTranslationDto {
   id: number;
 }
 
-export class TagsDto implements IPagination<TagDto> {
+export class TagsDto {
   @Expose()
   @Type(() => TagDto)
   @ApiProperty({
@@ -52,12 +51,4 @@ export class TagsDto implements IPagination<TagDto> {
     isArray: true,
   })
   results: TagDto[];
-
-  @Expose()
-  @ApiProperty()
-  page_total: number;
-
-  @Expose()
-  @ApiProperty()
-  total: number;
 }
