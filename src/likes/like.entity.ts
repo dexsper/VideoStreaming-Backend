@@ -36,9 +36,15 @@ export class LikeEntity {
   @Column()
   userId: number;
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   createdDate: Date;
 
-  @UpdateDateColumn({ select: false })
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   updatedDate: Date;
 }

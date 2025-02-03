@@ -49,9 +49,14 @@ export class CommentEntity implements Comment {
   @Column()
   userId: number;
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+  })
   createdDate: Date;
 
-  @UpdateDateColumn({ select: false })
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   updatedDate: Date;
 }

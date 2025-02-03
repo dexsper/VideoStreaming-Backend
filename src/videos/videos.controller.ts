@@ -27,10 +27,10 @@ import { videoPipe } from '../common/pipes';
 import { Language } from '../common/localization';
 
 import { VideosService } from './videos.service';
-import { CreateVideoDto, VideoDto, VideosDto } from './video.dto';
+import { CreateVideoDto, VideoDetailedDto, VideosDto } from './video.dto';
 
 @ApiJwtAuth()
-@Controller()
+@Controller('videos')
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
@@ -86,9 +86,9 @@ export class VideosController {
 
   @Get(':id')
   @Public()
-  @SerializeOptions({ type: VideoDto })
+  @SerializeOptions({ type: VideoDetailedDto })
   @ApiOperation({ summary: 'Get the specified video' })
-  @ApiOkResponse({ type: VideoDto })
+  @ApiOkResponse({ type: VideoDetailedDto })
   @ApiQuery({
     name: 'lang',
     enum: Language,

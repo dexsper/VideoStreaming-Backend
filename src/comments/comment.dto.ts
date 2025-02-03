@@ -30,6 +30,10 @@ export class CommentDto extends CreateCommentDto {
   @ApiProperty()
   @Transform(({ obj }) => obj.user.login)
   author: string;
+
+  @Expose()
+  @ApiProperty()
+  createdDate: string;
 }
 
 export class CommentsDto implements IPagination<CommentDto> {

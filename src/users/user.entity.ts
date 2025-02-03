@@ -43,9 +43,15 @@ export class UserEntity {
   @OneToMany(() => LikeEntity, (like) => like.user)
   likes: LikeEntity[];
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   createdDate: Date;
 
-  @UpdateDateColumn({ select: false })
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   updatedDate: Date;
 }

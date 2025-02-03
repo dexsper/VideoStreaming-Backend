@@ -1,7 +1,8 @@
 import {
   Column,
   CreateDateColumn,
-  Entity, Index,
+  Entity,
+  Index,
   ManyToMany,
   ManyToOne,
   OneToMany,
@@ -35,10 +36,16 @@ export class TagEntity implements Translatable<Tag> {
   @ManyToMany(() => VideoEntity, (video) => video.tags)
   videos: VideoEntity[];
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   createdDate: Date;
 
-  @UpdateDateColumn({ select: false })
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   updatedDate: Date;
 }
 

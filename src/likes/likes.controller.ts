@@ -12,7 +12,7 @@ import { LikesService } from './likes.service';
 import { ApiNotFoundResponse, ApiOperation } from '@nestjs/swagger';
 
 @ApiJwtAuth()
-@Controller()
+@Controller('videos/likes')
 export class LikesController {
   constructor(private readonly _likesService: LikesService) {}
 

@@ -27,7 +27,7 @@ import { ModelsService } from './models.service';
 import { CreateModelDto, ModelsDto } from './models.dto';
 
 @ApiJwtAuth()
-@Controller()
+@Controller('videos/models')
 export class ModelsController {
   constructor(private readonly modelsService: ModelsService) {}
 

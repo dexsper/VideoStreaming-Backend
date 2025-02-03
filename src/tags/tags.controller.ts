@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  ParseIntPipe,
   Post,
   Query,
   SerializeOptions,
@@ -18,7 +17,7 @@ import { CreateTagDto, TagsDto } from './tag.dto';
 import { TagsService } from './tags.service';
 
 @ApiJwtAuth()
-@Controller()
+@Controller('videos/tags')
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 

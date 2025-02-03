@@ -37,10 +37,16 @@ export class ModelEntity implements Translatable<Model> {
   @OneToMany(() => VideoEntity, (video) => video.model)
   videos: VideoEntity[];
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   createdDate: Date;
 
-  @UpdateDateColumn({ select: false })
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+    select: false,
+  })
   updatedDate: Date;
 }
 

@@ -94,13 +94,6 @@ export class VideosService {
         'modelTranslation',
         'modelTranslation.languageCode = :lang',
         { lang },
-      )
-      .innerJoinAndSelect('video.tags', 'tag')
-      .innerJoinAndSelect(
-        'tag.translations',
-        'tagTranslation',
-        'tagTranslation.languageCode = :lang',
-        { lang },
       );
 
     if (search) {
@@ -110,7 +103,13 @@ export class VideosService {
     }
 
     if (tags?.length) {
-      queryBuilder.andWhere('tag.id IN (:...tags)', { tags });
+      queryBuilder
+        .innerJoin('video.tags', 'tag')
+        .andWhere('tag.id IN (:...tags)', { tags })
+        .groupBy('video.id')
+        .having('COUNT(DISTINCT tag.id) = :tagCount', {
+          tagCount: tags.length,
+        });
     }
 
     const results = await queryBuilder
@@ -118,7 +117,6 @@ export class VideosService {
       .addSelect('COUNT(likes.id) as likesCount')
       .groupBy('video.id, videoTranslation.id')
       .addGroupBy('model.id, modelTranslation.id')
-      .addGroupBy('tag.id, tagTranslation.id')
       .orderBy('likesCount', 'DESC')
       .limit(limit + 1)
       .offset(offset)
@@ -139,27 +137,45 @@ export class VideosService {
   async getById(id: number, lang: string): Promise<Video>;
   async getById(id: number, lang?: undefined): Promise<VideoEntity>;
   async getById(id: number, lang?: string): Promise<VideoEntity | Video> {
-    // noinspection TypeScriptValidateTypes
-    const video = await this._videosRepository.findOne({
-      relations: {
-        translations: !!lang,
-        model: {
-          translations: !!lang,
-        },
-        tags: {
-          translations: !!lang,
-        },
-      },
-      relationLoadStrategy: 'join',
-      where: {
-        id,
-        ...(lang && {
-          translations: { languageCode: lang },
-          model: { translations: { languageCode: lang } },
-          tags: { translations: { languageCode: lang } },
-        }),
-      },
-    });
+    const queryBuilder = this._videosRepository
+      .createQueryBuilder('video')
+      .where('video.id = :id', { id: id });
+
+    if (lang) {
+      queryBuilder
+        .leftJoin('video.likes', 'like')
+        .loadRelationCountAndMap('video.likes', 'video.likes', 'likes', (qb) =>
+          qb.andWhere('likes.isNegative = false'),
+        )
+        .loadRelationCountAndMap(
+          'video.dislikes',
+          'video.likes',
+          'dislikes',
+          (qb) => qb.andWhere('dislikes.isNegative = true'),
+        )
+        .innerJoinAndSelect(
+          'video.translations',
+          'videoTranslation',
+          'videoTranslation.languageCode = :lang',
+          { lang },
+        )
+        .innerJoinAndSelect('video.model', 'model')
+        .innerJoinAndSelect(
+          'model.translations',
+          'modelTranslation',
+          'modelTranslation.languageCode = :lang',
+          { lang },
+        )
+        .innerJoinAndSelect('video.tags', 'tag')
+        .innerJoinAndSelect(
+          'tag.translations',
+          'tagTranslation',
+          'tagTranslation.languageCode = :lang',
+          { lang },
+        );
+    }
+
+    const video = await queryBuilder.getOne();
 
     if (!video) {
       throw new NotFoundException(`Video with ID ${id} not found`);

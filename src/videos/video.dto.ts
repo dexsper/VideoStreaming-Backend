@@ -81,7 +81,9 @@ export class VideoDto extends VideoTranslationDto {
   @Expose()
   @ApiProperty()
   model: ModelDto;
+}
 
+export class VideoDetailedDto extends VideoDto {
   @Expose()
   @Type(() => TagDto)
   @ApiProperty({
@@ -89,6 +91,18 @@ export class VideoDto extends VideoTranslationDto {
     isArray: true,
   })
   tags: TagDto[];
+
+  @Expose()
+  @ApiProperty()
+  likes: number;
+
+  @Expose()
+  @ApiProperty()
+  dislikes: number;
+
+  @Expose()
+  @ApiProperty()
+  views: number;
 }
 
 export class VideosDto implements IPagination<VideoDto> {
