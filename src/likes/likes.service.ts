@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -24,8 +24,7 @@ export class LikesService {
 
     if (existingLike) {
       existingLike.isNegative = isNegative;
-      await this._likesRepository.save(existingLike);
-      return;
+      return await this._likesRepository.save(existingLike);
     }
 
     const video = await this._videosService.getById(videoId);
@@ -35,6 +34,19 @@ export class LikesService {
       userId,
     });
 
-    await this._likesRepository.save(newLike);
+    return await this._likesRepository.save(newLike);
+  }
+
+  async getVideoLike(videoId: number, userId: number) {
+    const existingLike = await this._likesRepository.findOne({
+      where: { videoId, userId },
+    });
+
+    if (!existingLike)
+      throw new NotFoundException(
+        `Like on video with ID: ${videoId} not found`,
+      );
+
+    return existingLike;
   }
 }

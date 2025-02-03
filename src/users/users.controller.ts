@@ -12,7 +12,7 @@ import { UsersService } from './users.service';
 import { UserDto } from './user.dto';
 
 @ApiJwtAuth()
-@Controller()
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

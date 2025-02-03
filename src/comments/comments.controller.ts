@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 
 import { Roles } from '../rbac';
-import { ApiJwtAuth, CurrentUser, Public } from '../auth/decorators';
+import { ApiJwtAuth, CurrentUser, OptionalAuth } from '../auth/decorators';
 
 import { CommentDto, CommentsDto, CreateCommentDto } from './comment.dto';
 import { CommentsService } from './comments.service';
@@ -43,7 +43,7 @@ export class CommentsController {
   }
 
   @Get()
-  @Public()
+  @OptionalAuth()
   @SerializeOptions({ type: CommentsDto })
   @ApiOperation({ summary: 'Get all video comments' })
   @ApiOkResponse({ type: CommentsDto })

@@ -23,7 +23,7 @@ import { AuthService } from './auth.service';
 import { ApiJwtAuth, Public } from './decorators';
 
 @ApiJwtAuth()
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 

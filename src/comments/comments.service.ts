@@ -18,7 +18,6 @@ export class CommentsService {
 
   async create(createDto: CreateCommentDto, userId: number) {
     const video = await this._videosService.getById(createDto.videoId);
-
     const newComment = this._commentsRepository.create({
       ...createDto,
       video,
@@ -26,7 +25,11 @@ export class CommentsService {
       isApproved: false,
     });
 
-    return await this._commentsRepository.save(newComment);
+    const savedComment = await this._commentsRepository.save(newComment);
+    return await this._commentsRepository.findOne({
+      where: { id: savedComment.id },
+      relations: ['user'],
+    });
   }
 
   async getVideoComments(
@@ -53,6 +56,9 @@ export class CommentsService {
             }
           : {},
       ],
+      order: {
+        createdDate: 'DESC',
+      },
       take: limit + 1,
       skip: offset,
     });
