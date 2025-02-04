@@ -1,7 +1,10 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 import {
+  ArrayNotEmpty,
   IsArray,
+  IsIn,
+  IsInt,
   IsNumber,
   IsObject,
   IsString,
@@ -58,7 +61,10 @@ export class CreateVideoDto {
   readonly translations: Record<Language, VideoTranslationDto>;
 
   @IsArray()
+  @IsInt({ each: true })
+  @ArrayNotEmpty()
   @ApiProperty()
+  @Type(() => Number)
   readonly tags: number[];
 
   @ApiProperty({ type: 'string', format: 'binary', required: true })

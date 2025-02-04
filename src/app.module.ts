@@ -29,6 +29,7 @@ import { LikesModule } from './likes/likes.module';
       useFactory: async (configService: ConfigService) => ({
         ...configService.get('database'),
         cache: true,
+        logging: false,
         autoLoadEntities: true,
         synchronize: configService.get<string>('env') === 'development',
       }),

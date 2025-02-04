@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Get,
   HttpCode,
   Param,
@@ -71,5 +71,12 @@ export class CommentsController {
   @ApiOkResponse({ type: CommentDto })
   approveComment(@Param('commentId', ParseIntPipe) commentId: number) {
     return this.commentsService.approve(commentId);
+  }
+
+  @Delete(":commentId")
+  @Roles(['Admin'])
+  @ApiOperation({ summary: 'Delete the specified comment' })
+  deleteComment(@Param('commentId', ParseIntPipe) commentId: number){
+    return this.commentsService.delete(commentId);
   }
 }

@@ -17,7 +17,7 @@ import { CreateTagDto, TagsDto } from './tag.dto';
 import { TagsService } from './tags.service';
 
 @ApiJwtAuth()
-@Controller('videos/tags')
+@Controller('tags')
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 

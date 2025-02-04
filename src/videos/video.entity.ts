@@ -10,6 +10,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -55,6 +56,9 @@ export class VideoEntity implements Translatable<Video> {
   @OneToMany(() => LikeEntity, (like) => like.video)
   likes: LikeEntity[];
 
+  @OneToMany(() => VideoViewEntity, (view) => view.video)
+  views: VideoViewEntity[];
+
   @ManyToMany(() => TagEntity, (tag) => tag.videos)
   @JoinTable({
     name: 'videos_to_tags',
@@ -93,4 +97,28 @@ export class VideoTranslationEntity implements Translation<Video> {
     onDelete: 'CASCADE',
   })
   base: VideoEntity;
+}
+
+@Entity('videos_views')
+export class VideoViewEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @JoinColumn({ name: 'videoId' })
+  @ManyToOne(() => VideoEntity, (video) => video.views, {
+    onDelete: 'CASCADE',
+  })
+  video: VideoEntity;
+
+  @Column()
+  videoId: number;
+
+  @Index()
+  @Column()
+  userId: number;
+
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+  })
+  createdDate: Date;
 }

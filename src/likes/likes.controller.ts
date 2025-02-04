@@ -43,7 +43,6 @@ export class LikesController {
   @Get(':videoId')
   @SerializeOptions({ type: LikeDto })
   @ApiOperation({ summary: 'Get user like on the video' })
-  @ApiNotFoundResponse({ description: 'Like or video not found' })
   @ApiOkResponse({ type: LikeDto })
   getLike(
     @Param('videoId', ParseIntPipe) videoId: number,

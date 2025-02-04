@@ -5,12 +5,20 @@ import { ModelsModule } from '../models/models.module';
 
 import { VideosService } from './videos.service';
 import { VideosController } from './videos.controller';
-import { VideoEntity, VideoTranslationEntity } from './video.entity';
+import {
+  VideoEntity,
+  VideoTranslationEntity,
+  VideoViewEntity,
+} from './video.entity';
 
 @Module({
   imports: [
     ModelsModule,
-    TypeOrmModule.forFeature([VideoEntity, VideoTranslationEntity]),
+    TypeOrmModule.forFeature([
+      VideoEntity,
+      VideoTranslationEntity,
+      VideoViewEntity,
+    ]),
   ],
   providers: [VideosService],
   controllers: [VideosController],

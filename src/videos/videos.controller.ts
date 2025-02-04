@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 
 import { Roles } from '../rbac';
-import { ApiJwtAuth, Public } from '../auth/decorators';
+import { ApiJwtAuth, CurrentUser, Public } from '../auth/decorators';
 import { videoPipe } from '../common/pipes';
 import { Language } from '../common/localization';
 
@@ -95,5 +95,14 @@ export class VideosController {
   })
   getVideo(@Param('id', ParseIntPipe) id: number, @Query('lang') lang: string) {
     return this.videosService.getById(id, lang);
+  }
+
+  @Post(':id/view')
+  @ApiOperation({ summary: 'Increment video view by current user' })
+  viewVideo(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') userId: number,
+  ) {
+    return this.videosService.view(id, userId);
   }
 }

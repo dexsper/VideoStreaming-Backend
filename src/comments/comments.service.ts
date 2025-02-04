@@ -121,4 +121,8 @@ export class CommentsService {
 
     return await this._commentsRepository.save(comment);
   }
+
+  async delete(id: number) {
+    return await this._commentsRepository.delete(id);
+  }
 }

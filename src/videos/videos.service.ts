@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ObjectsService } from '@lab08/nestjs-s3';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 
 import { IPagination } from '../common/pagination';
 import { translate } from '../common/localization';
@@ -11,7 +11,12 @@ import { TagEntity } from '../tags/tag.entity';
 import { ModelsService } from '../models/models.service';
 
 import { CreateVideoDto } from './video.dto';
-import { Video, VideoEntity, VideoTranslationEntity } from './video.entity';
+import {
+  Video,
+  VideoEntity,
+  VideoTranslationEntity,
+  VideoViewEntity,
+} from './video.entity';
 
 @Injectable()
 export class VideosService {
@@ -20,6 +25,8 @@ export class VideosService {
   constructor(
     @InjectRepository(VideoEntity)
     private readonly _videosRepository: Repository<VideoEntity>,
+    @InjectRepository(VideoViewEntity)
+    private readonly _viewsRepository: Repository<VideoViewEntity>,
     private readonly _modelsService: ModelsService,
     private readonly _objectsService: ObjectsService,
     private readonly _configService: ConfigService,
@@ -153,6 +160,7 @@ export class VideosService {
           'dislikes',
           (qb) => qb.andWhere('dislikes.isNegative = true'),
         )
+        .loadRelationCountAndMap('video.views', 'video.views', 'views')
         .innerJoinAndSelect(
           'video.translations',
           'videoTranslation',
@@ -186,5 +194,24 @@ export class VideosService {
     }
 
     return video;
+  }
+
+  async view(id: number, userId: number) {
+    const existingView = await this._viewsRepository.findOne({
+      where: {
+        videoId: id,
+        userId,
+        createdDate: MoreThan(new Date(Date.now() - 24 * 60 * 60 * 1000)),
+      },
+    });
+
+    if (!existingView) {
+      const newView = this._viewsRepository.create({
+        videoId: id,
+        userId,
+      });
+
+      await this._viewsRepository.save(newView);
+    }
   }
 }
