@@ -7,13 +7,18 @@ import {
   Query,
   SerializeOptions,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 
 import { Roles } from '../rbac';
 import { ApiJwtAuth, Public } from '../auth/decorators';
 import { Language } from '../common/localization';
 
-import { CreateTagDto, TagsDto } from './tag.dto';
+import { CreateTagDto, TagDto, TagsDto } from './tag.dto';
 import { TagsService } from './tags.service';
 
 @ApiJwtAuth()
@@ -24,7 +29,9 @@ export class TagsController {
   @Post()
   @HttpCode(201)
   @Roles(['Admin'])
+  @SerializeOptions({ type: TagDto })
   @ApiOperation({ summary: 'Create new tag' })
+  @ApiCreatedResponse({ type: TagDto })
   createTag(@Body() createDto: CreateTagDto) {
     return this.tagsService.create(createDto);
   }

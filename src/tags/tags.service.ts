@@ -15,7 +15,7 @@ export class TagsService {
   ) {}
 
   async create(createDto: CreateTagDto) {
-    await this._tagsRepository.manager.transaction(async (manager) => {
+    return await this._tagsRepository.manager.transaction(async (manager) => {
       const newTag = manager.create(TagEntity);
       const savedTag = await manager.save(newTag);
 
@@ -30,6 +30,8 @@ export class TagsService {
       );
 
       await manager.save(translations);
+
+      return savedTag;
     });
   }
 
