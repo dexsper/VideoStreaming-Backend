@@ -22,6 +22,7 @@ import {
 import { CommentEntity } from '../comments/comment.entity';
 import { TagEntity } from '../tags/tag.entity';
 import { LikeEntity } from '../likes/like.entity';
+import { UserEntity } from '../users/user.entity';
 
 export interface Video {
   id: number;
@@ -64,6 +65,12 @@ export class VideoEntity implements Translatable<Video> {
     name: 'videos_to_tags',
   })
   tags: TagEntity[];
+
+  @ManyToMany(() => UserEntity)
+  @JoinTable({
+    name: 'users_favorite_videos',
+  })
+  favorites: UserEntity[];
 
   @CreateDateColumn({
     type: 'timestamp with time zone',

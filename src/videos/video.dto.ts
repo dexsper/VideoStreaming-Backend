@@ -109,6 +109,10 @@ export class VideoDetailedDto extends VideoDto {
   @Expose()
   @ApiProperty()
   views: number;
+
+  @Expose()
+  @ApiProperty()
+  favorites: number;
 }
 
 export class VideosDto implements IPagination<VideoDto> {

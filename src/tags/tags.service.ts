@@ -63,7 +63,7 @@ export class TagsService {
       .leftJoin('tag.videos', 'videos')
       .groupBy('tag.id, translation.id')
       .orderBy('videosCount', 'DESC')
-      .limit(10)
+      .limit(15)
       .cache(`popular-tags-${lang}`, 60 * 1000)
       .getMany();
 

@@ -2,7 +2,7 @@ export enum Language {
   en = 'en',
   ru = 'ru',
   ua = 'ua',
-  ku = 'ku',
+  kz = 'kz',
 }
 
 /**

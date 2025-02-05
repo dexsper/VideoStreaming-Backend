@@ -84,6 +84,22 @@ export class VideosController {
     return this.videosService.getAll(lang, page, search, tags);
   }
 
+  @Get('favourites')
+  @SerializeOptions({ type: VideosDto })
+  @ApiOperation({ summary: 'Get all favourites videos' })
+  @ApiOkResponse({ type: VideosDto })
+  @ApiQuery({
+    name: 'lang',
+    enum: Language,
+  })
+  getFavourites(
+    @Query('lang') lang: string,
+    @Query('page', ParseIntPipe) page: number,
+    @CurrentUser('id') userId: number,
+  ) {
+    return this.videosService.getFavourites(lang, page, userId);
+  }
+
   @Get(':id')
   @Public()
   @SerializeOptions({ type: VideoDetailedDto })
@@ -104,5 +120,23 @@ export class VideosController {
     @CurrentUser('id') userId: number,
   ) {
     return this.videosService.view(id, userId);
+  }
+
+  @Post(':id/favorite')
+  @ApiOperation({ summary: 'Add the specified video to favorites' })
+  favourite(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') userId: number,
+  ) {
+    return this.videosService.toggleFavourite(id, userId);
+  }
+
+  @Get(':id/favorite')
+  @ApiOperation({ summary: 'Check the specified video is favorite' })
+  isFavourite(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') userId: number,
+  ) {
+    return this.videosService.isFavourite(id, userId);
   }
 }

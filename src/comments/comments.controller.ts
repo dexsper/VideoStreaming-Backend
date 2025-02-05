@@ -1,6 +1,7 @@
 import {
   Body,
-  Controller, Delete,
+  Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -73,10 +74,10 @@ export class CommentsController {
     return this.commentsService.approve(commentId);
   }
 
-  @Delete(":commentId")
+  @Delete(':commentId')
   @Roles(['Admin'])
   @ApiOperation({ summary: 'Delete the specified comment' })
-  deleteComment(@Param('commentId', ParseIntPipe) commentId: number){
+  deleteComment(@Param('commentId', ParseIntPipe) commentId: number) {
     return this.commentsService.delete(commentId);
   }
 }

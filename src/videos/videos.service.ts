@@ -161,6 +161,11 @@ export class VideosService {
           (qb) => qb.andWhere('dislikes.isNegative = true'),
         )
         .loadRelationCountAndMap('video.views', 'video.views', 'views')
+        .loadRelationCountAndMap(
+          'video.favorites',
+          'video.favorites',
+          'favorites',
+        )
         .innerJoinAndSelect(
           'video.translations',
           'videoTranslation',
@@ -213,5 +218,82 @@ export class VideosService {
 
       await this._viewsRepository.save(newView);
     }
+  }
+
+  async toggleFavourite(id: number, userId: number) {
+    const isFavourite = await this._videosRepository
+      .createQueryBuilder()
+      .relation(VideoEntity, 'favorites')
+      .of(id)
+      .loadMany();
+
+    const alreadyFavourite = isFavourite.some((user) => user.id === userId);
+
+    if (alreadyFavourite) {
+      await this._videosRepository
+        .createQueryBuilder()
+        .relation(VideoEntity, 'favorites')
+        .of(id)
+        .remove(userId);
+    } else {
+      await this._videosRepository
+        .createQueryBuilder()
+        .relation(VideoEntity, 'favorites')
+        .of(id)
+        .add(userId);
+    }
+  }
+
+  async getFavourites(
+    lang: string,
+    page: number,
+    userId: number,
+  ): Promise<IPagination<Video>> {
+    const limit = 12;
+    const offset = 12 * page;
+
+    const queryBuilder = this._videosRepository
+      .createQueryBuilder('video')
+      .innerJoinAndSelect(
+        'video.translations',
+        'videoTranslation',
+        'videoTranslation.languageCode = :lang',
+        { lang },
+      )
+      .innerJoinAndSelect('video.model', 'model')
+      .innerJoinAndSelect(
+        'model.translations',
+        'modelTranslation',
+        'modelTranslation.languageCode = :lang',
+        { lang },
+      );
+
+    const results = await queryBuilder
+      .leftJoin('video.favorites', 'user')
+      .where('user.id = :userId', { userId })
+      .limit(limit + 1)
+      .offset(offset)
+      .getMany();
+
+    const hasNextPage = results.length > limit;
+    if (hasNextPage) {
+      results.pop();
+    }
+
+    return {
+      results: results.map((video) => translate<Video>(video)),
+      hasNextPage,
+    };
+  }
+
+  async isFavourite(id: number, userId: number) {
+    const count = await this._videosRepository
+      .createQueryBuilder('video')
+      .leftJoinAndSelect('video.favorites', 'user')
+      .where('video.id = :id', { id })
+      .andWhere('user.id = :userId', { userId })
+      .getCount();
+
+    return count > 0;
   }
 }
