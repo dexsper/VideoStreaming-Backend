@@ -32,7 +32,7 @@ import { BannersModule } from './banners/banners.module';
         cache: true,
         logging: false,
         autoLoadEntities: true,
-        synchronize: configService.get<string>('env') === 'development',
+        synchronize: true,
       }),
     }),
     S3Module.forRootAsync({

@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcrypt-ts';
+import * as bcrypt from 'bcrypt';
 
 export function hashPassword(textPassword: string) {
   return bcrypt.hash(textPassword, 10);

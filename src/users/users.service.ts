@@ -49,8 +49,4 @@ export class UsersService {
     }
     return user;
   }
-
-  async addVideoToFavourite(id: number) {
-
-  }
 }
