@@ -19,6 +19,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  PickType,
 } from '@nestjs/swagger';
 
 import { Roles } from '../rbac';
@@ -27,7 +28,12 @@ import { videoPipe } from '../common/pipes';
 import { Language } from '../common/localization';
 
 import { VideosService } from './videos.service';
-import { CreateVideoDto, VideoDetailedDto, VideosDto } from './video.dto';
+import {
+  CreateVideoDto,
+  VideoDetailedDto,
+  VideoDto,
+  VideosDto,
+} from './video.dto';
 
 @ApiJwtAuth()
 @Controller('videos')
@@ -82,6 +88,15 @@ export class VideosController {
     tags?: number[],
   ) {
     return this.videosService.getAll(lang, page, search, tags);
+  }
+
+  @Get('ids')
+  @Public()
+  @SerializeOptions({ type: VideoDto })
+  @ApiOperation({ summary: 'Get all video ids' })
+  @ApiOkResponse({ type: PickType(VideoDto, ['id']), isArray: true })
+  getIds() {
+    return this.videosService.getIds();
   }
 
   @Get('favourites')

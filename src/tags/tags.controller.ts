@@ -24,7 +24,7 @@ import { TagsService } from './tags.service';
 @ApiJwtAuth()
 @Controller('tags')
 export class TagsController {
-  constructor(private readonly tagsService: TagsService) {}
+  constructor(private readonly _tagsService: TagsService) {}
 
   @Post()
   @HttpCode(201)
@@ -33,7 +33,7 @@ export class TagsController {
   @ApiOperation({ summary: 'Create new tag' })
   @ApiCreatedResponse({ type: TagDto })
   createTag(@Body() createDto: CreateTagDto) {
-    return this.tagsService.create(createDto);
+    return this._tagsService.create(createDto);
   }
 
   @Get()
@@ -52,7 +52,7 @@ export class TagsController {
     enum: Language,
   })
   getTags(@Query('lang') lang: string, @Query('search') search?: string) {
-    return this.tagsService.getAll(lang, search);
+    return this._tagsService.getAll(lang, search);
   }
 
   @Get('popular')
@@ -65,6 +65,6 @@ export class TagsController {
     enum: Language,
   })
   getPopularTags(@Query('lang') lang: string) {
-    return this.tagsService.getPopular(lang);
+    return this._tagsService.getPopular(lang);
   }
 }

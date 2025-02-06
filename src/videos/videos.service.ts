@@ -296,4 +296,12 @@ export class VideosService {
 
     return count > 0;
   }
+
+  async getIds() {
+    return await this._videosRepository
+      .createQueryBuilder('video')
+      .select('video.id')
+      .cache(60 * 1000)
+      .getMany();
+  }
 }

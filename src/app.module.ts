@@ -15,6 +15,7 @@ import { VideosModule } from './videos/videos.module';
 import { CommentsModule } from './comments/comments.module';
 import { TagsModule } from './tags/tags.module';
 import { LikesModule } from './likes/likes.module';
+import { BannersModule } from './banners/banners.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { LikesModule } from './likes/likes.module';
     UsersModule,
     AuthModule,
     RbacModule,
+    BannersModule,
   ],
   controllers: [],
   providers: [],

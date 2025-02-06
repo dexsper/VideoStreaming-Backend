@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  ParseIntPipe,
   Post,
   Query,
   SerializeOptions,
@@ -23,48 +22,38 @@ import { ApiJwtAuth, Public } from '../auth/decorators';
 import { imagePipe } from '../common/pipes';
 import { Language } from '../common/localization';
 
-import { ModelsService } from './models.service';
-import { CreateModelDto, ModelsDto } from './models.dto';
+import { BannersService } from './banners.service';
+import { BannerDto, BannersDto, CreateBannerDto } from './banner.dto';
 
 @ApiJwtAuth()
-@Controller('models')
-export class ModelsController {
-  constructor(private readonly _modelsService: ModelsService) {}
+@Controller('banners')
+export class BannersController {
+  constructor(private readonly _bannersService: BannersService) {}
 
   @Post()
   @HttpCode(201)
   @Roles(['Admin'])
-  @ApiOperation({ summary: 'Create new model' })
+  @ApiOperation({ summary: 'Create new banner' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image'))
   createModel(
-    @Body() createDto: CreateModelDto,
+    @Body() createDto: CreateBannerDto,
     @UploadedFile(imagePipe()) image: Express.Multer.File,
   ) {
     createDto.image = image;
-    return this._modelsService.create(createDto);
+    return this._bannersService.create(createDto);
   }
 
   @Get()
   @Public()
-  @SerializeOptions({ type: ModelsDto })
-  @ApiOperation({ summary: 'Get all models' })
-  @ApiOkResponse({ type: ModelsDto })
+  @SerializeOptions({ type: BannersDto })
+  @ApiOperation({ summary: 'Get all banners' })
+  @ApiOkResponse({ type: BannersDto })
   @ApiQuery({
     name: 'lang',
     enum: Language,
   })
-  @ApiQuery({
-    name: 'search',
-    type: String,
-    description: 'A search parameter. Optional',
-    required: false,
-  })
-  getModels(
-    @Query('lang') lang: string,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('search') search?: string,
-  ) {
-    return this._modelsService.getAll(lang, page, search);
+  getBanners(@Query('lang') lang: string) {
+    return this._bannersService.getAll(lang);
   }
 }
